@@ -1,0 +1,15 @@
+{
+  "name": "lilystener",
+  "version": "1.0.0",
+  "description": "Baby monitor",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Rodrigue Villetard <rodrigue.villetard@sacristi.fr>",
+  "license": "LGPLv3",
+  "dependencies": {
+    "microphone": "git+https://github.com/gorghoa/node-microphone.git",
+    "socket.io": "^1.1.0"
+  }
+}
