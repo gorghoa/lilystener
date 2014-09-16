@@ -40,7 +40,7 @@ function handler (req, res) {
   } 
 
   if(req.url.match(/jpg|js|css$/)) {
-      fs.readFile(__dirname + '/' + req.url,
+      fs.readFile(__dirname + '/client/' + req.url,
       function (err, data) {
         if (err) {
           res.writeHead(500);
@@ -53,7 +53,7 @@ function handler (req, res) {
   } 
   else{ 
 
-  fs.readFile(__dirname + '/index.html',
+  fs.readFile(__dirname + '/client/index.html',
   function (err, data) {
     if (err) {
       res.writeHead(500);

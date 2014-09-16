@@ -141,7 +141,7 @@ var lastStep=null;
     ping(moment().format('H:mm:ss'));
 
     if((lastStep!=data.step || data.step==='high') && document.hidden ) {
-            var n = new Notification("Your baby!", {body: data.step, tag:'yourbaby',icon: window.location.origin + '/'+data.step+'.jpg'});
+            var n = new Notification("Your baby!", {body: data.step, tag:'yourbaby',icon: window.location.origin + '/imgs/'+data.step+'.jpg'});
     }
     if(lastStep!=data.step) {
         lastStep=data.step;
