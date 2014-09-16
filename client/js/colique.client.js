@@ -117,7 +117,7 @@ var lastStep=null;
 
  setInterval(function() {
 
-    if((Date.now()-lasttimeupdate)>15000) {
+    if((Date.now()-lasttimeupdate)>30000) {
         new Notification("Connection with you baby lost!!!",{tag:'yourbaby'});
         log({step:"Connection with you baby lost!!!",time:Date.now()});
         $step.innerHTML = "Connection lost " + moment(lasttimeupdate).fromNow();
@@ -126,9 +126,6 @@ var lastStep=null;
     }
 
     refreshHistory();
-
-
-
 
  },10000);
   
