@@ -20,11 +20,11 @@ var colique = {
     }
 
 
-    this.paliatedIntensity=avg(slice);
+    this.paliatedIntensity={intensity:avg(slice),time:Date.now()};
 
   },
   getCurrentStep:function() {
-    return this.getStep(this.paliatedIntensity);
+    return {time:this.paliatedIntensity.time,step:this.getStep(this.paliatedIntensity.intensity)};
   },
   getStep:function(intensity) {
     for(var i in this.steps) {

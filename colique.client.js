@@ -5,16 +5,45 @@ var $step =  document.getElementById('step');
 var $intnumber =  document.getElementById('intnumber');
 var $body = document.getElementsByTagName('body')[0];
 var $history = document.getElementById('history');
+var $host= document.getElementById('host');
+var $diag= document.getElementById('diag');
+
+var host=localStorage.getItem('host') || document.location.host || "";
+var socket;
+$host.onclick = function() {
+    tmpHost = prompt("host",host);
+    if(!tmpHost) return;
+
+    host = tmpHost;
+    localStorage.setItem('host',host);
+    handleSocket(host);
+
+};
 
 var lasttimeupdate=Date.now();
 
 
 var ping = function(text) {
-    text = text || "";
+    text = text || "&nbsp;";
     var elm = document.getElementById('ping');
-    elm.innerHTML=text;
+    elm.innerHTML="<p><small>last update</small><br/>"+text+"</p>";
     var newone = elm.cloneNode(true);
     elm.parentNode.replaceChild(newone, elm);
+};
+
+var log = function(step) {
+    hist.push({time:Date.now(),step:step});
+    if(hist.length>20) hist.shift();
+
+    $diag.innerHTML="";
+
+    refreshHistory();
+    _(hist).forEach(function(item) {
+        elDiag = document.createElement('div');
+        s = (_(['low','medium','high']).contains(item.step.step)) ? item.step.step : 'connection';
+        elDiag.className = s;
+        $diag.appendChild(elDiag);
+    });
 };
 
 var hist = new Array();
@@ -24,6 +53,7 @@ Notification.requestPermission( function(status) {
 
 window.navigator.requestWakeLock = window.navigator.requestWakeLock || function(){};
 var lock = window.navigator.requestWakeLock('wifi');
+var lockcpu = window.navigator.requestWakeLock('cpu');
 
 var lastStep=null;
 
@@ -42,65 +72,83 @@ var lastStep=null;
             $audioTrigger.innerHTML='Listen';
         }
   };
-  var socket = io(document.location.host);
-  var creatures = document.getElementsByClassName('click-anim');
-
 
   var intensityHandler = function(data) {
     $intnumber.value = parseInt(data,10);
 
   };
-  socket.on('intensity', intensityHandler);
-
   document.addEventListener('visibilitychange',function() {
+
+    if(typeof socket  === 'object') {
         if(!document.hidden) {
           socket.on('intensity', intensityHandler);
         } else {
           socket.removeAllListeners('intensity');
         }
+    }
   });
 
+
+  var handleSocket = function (host) {
+
+      socket = io(host);
+      socket.on('intensity', intensityHandler);
+      $step.innerHTML = 'connecting…' + host;
+
+      socket.on('step', stepHandler);
+
+      socket.on('connect',function() {
+            log({step:"connected to "+host,time:Date.now()});
+      });
+  };
+
+
+ var refreshHistory = function() {
+
+    var s,el,elDia;
+    $history.innerHTML="";
+    _(hist).forEachRight(function(item) {
+        el = document.createElement('li');
+        el.innerHTML = '<div>'+moment(item.time).format('H:mm:ss')+'</div><div>' + item.step.step +'</div>';
+        $history.appendChild(el);
+    });
+
+ };
 
  setInterval(function() {
 
     if((Date.now()-lasttimeupdate)>5000) {
         new Notification("Connection with you baby lost!!!",{tag:'yourbaby'});
+        log({step:"Connection with you baby lost!!!",time:Date.now()});
         $step.innerHTML = "Connection lost " + moment(lasttimeupdate).fromNow();
         $body.className = 'connection';
         lastStep = 'connectionerror';
     }
 
-    $history.innerHTML="";
-    _(hist).forEachRight(function(item) {
-        var el = document.createElement('li');
-        el.innerHTML = '<small>'+moment(item.time).fromNow()+'</small>,' + item.step;
-        $history.appendChild(el);
-    });
+    refreshHistory();
+
+
+
 
  },10000);
   
   var stepHandler =  function (data) {
-    $step.innerHTML = data;
-    $body.className = data;
+    $step.innerHTML = data.step;
+    $body.className = data.step;
 
     lasttimeupdate=Date.now();
-    hist.push({time:Date.now(),step:data});
-    if(hist.length>20) hist.shift();
-    ping();
+    log(data);
+    ping(moment().format('H:mm:ss'));
 
-    if((lastStep!=data || data==='high') && document.hidden ) {
-            var n = new Notification("Your baby!", {body: data, tag:'yourbaby',icon: window.location.origin + '/'+data+'.jpg'});
+    if((lastStep!=data.step || data.step==='high') && document.hidden ) {
+            var n = new Notification("Your baby!", {body: data.step, tag:'yourbaby',icon: window.location.origin + '/'+data.step+'.jpg'});
     }
-    if(lastStep!=data) {
-        lastStep=data;
-        _(creatures).forEach(function(creature) {
-            creature.classList.remove('show');
-            document.getElementById(lastStep + '-creature' ).classList.toggle('show',true);
-        }); 
+    if(lastStep!=data.step) {
+        lastStep=data.step;
     }
 
-    if(data === 'medium') {
-       window.navigator.vibrate([100]); 
-    }
   };
-  socket.on('step', stepHandler);
+
+
+
+handleSocket(host);
