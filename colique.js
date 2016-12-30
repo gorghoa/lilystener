@@ -2,9 +2,11 @@
 var colique = {
   hist : [],
   histStep : [],
-  steps : {high:60,medium:10},
+  steps : { high: 50, medium: 10 },
   countIdem:0,
   addIntensity : function(intensity) {
+    // use this debug to calibrate the steps
+    // console.log('I', intensity);
     var hist=this.hist;
     hist.push(parseInt(intensity,10));
 
@@ -25,7 +27,7 @@ var colique = {
 
 
 
-    this.paliatedIntensity={intensity:avg(slice),time:Date.now()};
+    this.paliatedIntensity={intensity:avg(slice), time:Date.now()};
     this.histStep.push(this.paliatedIntensity.intensity);
 
   },

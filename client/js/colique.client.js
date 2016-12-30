@@ -51,9 +51,14 @@ var hist = new Array();
 Notification.requestPermission( function(status) {
 });
 
-window.navigator.requestWakeLock = window.navigator.requestWakeLock || function(){};
-var lock = window.navigator.requestWakeLock('wifi');
-var lockcpu = window.navigator.requestWakeLock('cpu');
+
+if (window.navigator.requestWakeLock) {
+  var lock = window.navigator.requestWakeLock('wifi');
+  var lockcpu = window.navigator.requestWakeLock('cpu');
+} else {
+  var noSleep = new NoSleep();
+  noSleep.enable();
+}
 
 var lastStep=null;
 

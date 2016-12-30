@@ -4,7 +4,7 @@ var io = require('socket.io')(app);
 var fs = require('fs');
 var colique = require('./colique');
 
-mic.startCapture({mp3output:true,alsa_device:'hw:0,0',arecord_args:['-vvv'],debug:true});
+mic.startCapture({mp3output:true,alsa_device:'hw:1,0',arecord_args:['-vvv'],debug:true});
 
 var listeners = [];
 var listen = function(res) {
